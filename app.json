@@ -13,18 +13,29 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "O Nutribase usa a câmera para escanear o rótulo do produto e identificar a presença de lactose."
+      }
     },
     "android": {
+      "permissions": ["CAMERA"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+         
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    }
+    "web":  { "bundler": "metro" },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "O Nutribase usa a câmera para escanear o rótulo do produto e identificar a presença de lactose."
+        }
+      ]
+    ]
   }
 }
