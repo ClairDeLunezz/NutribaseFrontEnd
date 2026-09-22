@@ -56,3 +56,14 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
       0,
     );
   }
+
+  const isJson = response.headers.get('content-type')?.includes('application/json');
+  const data = isJson ? await response.json().catch(() => ({})) : null;
+
+  if (!response.ok) {
+    const mensagem = (data && (data.erro || data.mensagem)) || 'Ocorreu um erro inesperado.';
+    throw new ApiError(mensagem, response.status);
+  }
+
+  return data as T;
+}
