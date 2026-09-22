@@ -54,3 +54,12 @@ export async function redefinirSenha(email: string, codigo: string, novaSenha: s
   });
 }
 
+export async function logout(): Promise<void> {
+  try {
+    await apiRequest<MensagemResponse>('/auth/logout', { method: 'POST', auth: true });
+  } finally {
+    // Mesmo se a chamada falhar (ex: sem internet), remove o token local
+    // para não deixar o app "preso" numa sessão que o usuário não consegue mais usar.
+    await clearToken();
+  }
+}
