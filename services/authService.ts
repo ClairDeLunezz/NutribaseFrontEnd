@@ -31,3 +31,12 @@ export async function registrar(nome: string, email: string, senha: string, conf
   });
 }
 
+export async function login(email: string, senha: string): Promise<Usuario> {
+  const resposta = await apiRequest<LoginResponse>('/auth/login', {
+    method: 'POST',
+    body: { email, senha },
+  });
+  await saveToken(resposta.access_token);
+  return resposta.usuario;
+}
+
