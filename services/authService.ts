@@ -47,3 +47,10 @@ export async function solicitarRecuperacaoSenha(email: string) {
   });
 }
 
+export async function redefinirSenha(email: string, codigo: string, novaSenha: string) {
+  return apiRequest<MensagemResponse>('/auth/reset-password', {
+    method: 'POST',
+    body: { email, codigo, nova_senha: novaSenha },
+  });
+}
+
