@@ -19,23 +19,27 @@
       }
     },
     "android": {
-      "permissions": ["CAMERA"],
+      "permissions": [
+        "CAMERA"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-         
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
-    "web":  { "bundler": "metro" },
+    "web": {
+      "bundler": "metro"
+    },
     "plugins": [
       [
         "expo-camera",
         {
           "cameraPermission": "O Nutribase usa a câmera para escanear o rótulo do produto e identificar a presença de lactose."
         }
-      ]
+      ],
+      "expo-secure-store"
     ]
   }
 }
