@@ -1,0 +1,26 @@
+import { apiRequest, saveToken, clearToken } from './api';
+
+export interface Usuario {
+  id: number;
+  nome: string;
+  email: string;
+  foto_perfil: string | null;
+  restricoes: string[];
+  criado_em: string | null;
+}
+
+interface LoginResponse {
+  mensagem: string;
+  access_token: string;
+  usuario: Usuario;
+}
+
+interface RegisterResponse {
+  mensagem: string;
+  usuario: Usuario;
+}
+
+interface MensagemResponse {
+  mensagem: string;
+}
+

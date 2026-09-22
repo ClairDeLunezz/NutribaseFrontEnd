@@ -28,7 +28,7 @@ export default function AppTextInput({ label, placeholder, secure, value, onChan
         />
         {secure && (
           <TouchableOpacity onPress={() => setHidden(!hidden)} style={styles.eyeButton}>
-            <Text style={styles.eyeIcon}>{hidden ? '🙈' : '👁'}</Text>
+            <Text style={styles.eyeIcon}>{hidden ? '👁' : '👁'}</Text>
           </TouchableOpacity>
         )}
       </View>
