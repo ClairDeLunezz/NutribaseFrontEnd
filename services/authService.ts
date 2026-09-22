@@ -40,3 +40,10 @@ export async function login(email: string, senha: string): Promise<Usuario> {
   return resposta.usuario;
 }
 
+export async function solicitarRecuperacaoSenha(email: string) {
+  return apiRequest<MensagemResponse>('/auth/forgot-password', {
+    method: 'POST',
+    body: { email },
+  });
+}
+
