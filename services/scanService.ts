@@ -17,3 +17,10 @@ interface AnalyzeResponse {
   termos_encontrados: string[];
   registro: ScanRegistro;
 }
+export async function analisarEscaneamento(textoOcr: string, nomeProduto: string) {
+  return apiRequest<AnalyzeResponse>('/scan/analyze', {
+    method: 'POST',
+    auth: true,
+    body: { texto_ocr: textoOcr, nome_produto: nomeProduto },
+  });
+}
