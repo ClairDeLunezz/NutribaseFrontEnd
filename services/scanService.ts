@@ -24,3 +24,11 @@ export async function analisarEscaneamento(textoOcr: string, nomeProduto: string
     body: { texto_ocr: textoOcr, nome_produto: nomeProduto },
   });
 }
+export async function buscarHistorico(): Promise<ScanRegistro[]> {
+  return apiRequest<ScanRegistro[]>('/scan/history', { method: 'GET', auth: true });
+}
+
+// Detalhe de um item específico do histórico
+export async function buscarDetalheHistorico(id: number): Promise<ScanRegistro> {
+  return apiRequest<ScanRegistro>(`/scan/history/${id}`, { method: 'GET', auth: true });
+}
