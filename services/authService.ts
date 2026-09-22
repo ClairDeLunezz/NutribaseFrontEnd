@@ -24,3 +24,10 @@ interface MensagemResponse {
   mensagem: string;
 }
 
+export async function registrar(nome: string, email: string, senha: string, confirmarSenha: string) {
+  return apiRequest<RegisterResponse>('/auth/register', {
+    method: 'POST',
+    body: { nome, email, senha, confirmar_senha: confirmarSenha },
+  });
+}
+
