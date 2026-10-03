@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { colors, spacing, typography } from '../theme';
 import AppHeader from '../components/AppHeader';
 import AppTextInput from '../components/AppTextInput';
@@ -8,15 +9,19 @@ import KeyboardAvoidingScreen from '../components/KeyboardAvoidingScreen';
 import { ScreenProps } from '../types';
 import { buscarPerfil, atualizarPerfil } from '../services/userService';
 import { ApiError } from '../services/api';
+import { useToast } from '../context/ToastContext';
+import { buildAssetUrl } from '../utils/buildAssetUrl';
 
 export default function EditarPerfilScreen({ navigate }: ScreenProps) {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [fotoAtualUrl, setFotoAtualUrl] = useState<string | null>(null);
+  const [fotoSelecionada, setFotoSelecionada] = useState<ImagePicker.ImagePickerAsset | null>(null);
 
   const [carregandoPerfil, setCarregandoPerfil] = useState(true);
   const [salvando, setSalvando] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   useEffect(() => {
     (async () => {
@@ -24,30 +29,60 @@ export default function EditarPerfilScreen({ navigate }: ScreenProps) {
         const usuario = await buscarPerfil();
         setNome(usuario.nome);
         setEmail(usuario.email);
+        setFotoAtualUrl(buildAssetUrl(usuario.foto_perfil));
       } catch (e) {
         const mensagem = e instanceof ApiError ? e.message : 'Não foi possível carregar seus dados.';
-        setErro(mensagem);
+        showToast('error', mensagem);
       } finally {
         setCarregandoPerfil(false);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleConfirmar = async () => {
-    setErro(null);
+  const handleEscolherFoto = async () => {
+    const permissao = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissao.granted) {
+      showToast('error', 'Precisamos de acesso às suas fotos para trocar a imagem de perfil.');
+      return;
+    }
 
+    const resultado = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+
+    if (!resultado.canceled && resultado.assets.length > 0) {
+      setFotoSelecionada(resultado.assets[0]);
+    }
+  };
+
+  const handleConfirmar = async () => {
     if (!senha) {
-      setErro('Digite sua senha atual para confirmar a alteração.');
+      showToast('error', 'Digite sua senha atual para confirmar a alteração.');
       return;
     }
 
     setSalvando(true);
     try {
-      await atualizarPerfil({ senhaAtual: senha, nome: nome.trim() });
+      await atualizarPerfil({
+        senhaAtual: senha,
+        nome: nome.trim(),
+        foto: fotoSelecionada
+          ? {
+              uri: fotoSelecionada.uri,
+              name: fotoSelecionada.fileName || 'foto-perfil.jpg',
+              type: fotoSelecionada.mimeType || 'image/jpeg',
+            }
+          : undefined,
+      });
+      showToast('success', 'Perfil atualizado com sucesso!');
       navigate('Perfil');
     } catch (e) {
       const mensagem = e instanceof ApiError ? e.message : 'Não foi possível atualizar o perfil.';
-      setErro(mensagem);
+      showToast('error', mensagem);
     } finally {
       setSalvando(false);
     }
@@ -62,17 +97,19 @@ export default function EditarPerfilScreen({ navigate }: ScreenProps) {
     );
   }
 
+  const fotoParaExibir = fotoSelecionada?.uri || fotoAtualUrl;
+
   return (
     <SafeAreaView style={styles.container}>
       <AppHeader showBack onBack={() => navigate('Perfil')} title="Editar Perfil" />
 
       <KeyboardAvoidingScreen contentContainerStyle={styles.content}>
-        <TouchableOpacity
-          style={styles.avatarLarge}
-          accessibilityLabel="Alterar foto de perfil"
-          onPress={() => setErro('Upload de foto ainda não está disponível nesta versão.')}
-        >
-          <Text style={styles.avatarIcon}>🙂</Text>
+        <TouchableOpacity style={styles.avatarLarge} accessibilityLabel="Alterar foto de perfil" onPress={handleEscolherFoto}>
+          {fotoParaExibir ? (
+            <Image source={{ uri: fotoParaExibir }} style={styles.avatarImage} />
+          ) : (
+            <Text style={styles.avatarIcon}>🙂</Text>
+          )}
           <View style={styles.editBadge}>
             <Text style={styles.editBadgeIcon}>✎</Text>
           </View>
@@ -84,8 +121,6 @@ export default function EditarPerfilScreen({ navigate }: ScreenProps) {
         <Text style={styles.readOnlyValue}>{email}</Text>
 
         <AppTextInput label="Confirme sua senha" secure value={senha} onChangeText={setSenha} />
-
-        {erro && <Text style={styles.errorText}>{erro}</Text>}
 
         {salvando ? (
           <ActivityIndicator color={colors.buttonBg} style={{ marginTop: spacing.lg }} />
@@ -109,7 +144,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignSelf: 'center',
     marginBottom: spacing.xl,
+    overflow: 'hidden',
   },
+  avatarImage: { width: '100%', height: '100%' },
   avatarIcon: { fontSize: 44 },
   editBadge: {
     position: 'absolute',
@@ -133,5 +170,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     marginBottom: spacing.md,
   },
-  errorText: { color: colors.dangerRed, fontSize: 14, marginTop: spacing.sm },
 });

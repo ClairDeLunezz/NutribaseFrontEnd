@@ -8,6 +8,7 @@ import KeyboardAvoidingScreen from '../components/KeyboardAvoidingScreen';
 import { ScreenProps } from '../types';
 import { registrar } from '../services/authService';
 import { ApiError } from '../services/api';
+import { useToast } from '../context/ToastContext';
 
 export default function CadastroScreen({ navigate }: ScreenProps) {
   const [nome, setNome] = useState('');
@@ -15,31 +16,30 @@ export default function CadastroScreen({ navigate }: ScreenProps) {
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [carregando, setCarregando] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   const handleCadastro = async () => {
-    setErro(null);
-
     if (!nome.trim() || !contato.trim() || !senha || !confirmarSenha) {
-      setErro('Preencha todos os campos.');
+      showToast('error', 'Preencha todos os campos.');
       return;
     }
     if (senha !== confirmarSenha) {
-      setErro('As senhas não coincidem.');
+      showToast('error', 'As senhas não coincidem.');
       return;
     }
     if (senha.length < 6) {
-      setErro('A senha deve ter ao menos 6 caracteres.');
+      showToast('error', 'A senha deve ter ao menos 6 caracteres.');
       return;
     }
 
     setCarregando(true);
     try {
       await registrar(nome.trim(), contato.trim().toLowerCase(), senha, confirmarSenha);
+      showToast('success', 'Cadastro realizado com sucesso! Faça login para continuar.');
       navigate('Login');
     } catch (e) {
       const mensagem = e instanceof ApiError ? e.message : 'Não foi possível concluir o cadastro. Tente novamente.';
-      setErro(mensagem);
+      showToast('error', mensagem);
     } finally {
       setCarregando(false);
     }
@@ -59,8 +59,6 @@ export default function CadastroScreen({ navigate }: ScreenProps) {
         <AppTextInput label="E-mail" placeholder="exemplo@email.com" value={contato} onChangeText={setContato} />
         <AppTextInput label="Senha" secure value={senha} onChangeText={setSenha} />
         <AppTextInput label="Confirmar Senha" secure value={confirmarSenha} onChangeText={setConfirmarSenha} />
-
-        {erro && <Text style={styles.errorText}>{erro}</Text>}
 
         {carregando ? (
           <ActivityIndicator color={colors.buttonBg} style={{ marginTop: spacing.lg }} />
