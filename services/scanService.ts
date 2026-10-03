@@ -17,6 +17,8 @@ interface AnalyzeResponse {
   termos_encontrados: string[];
   registro: ScanRegistro;
 }
+
+// RF06/RF07/RF08 - Envia o texto já extraído pelo OCR + nome do produto para análise.
 export async function analisarEscaneamento(textoOcr: string, nomeProduto: string) {
   return apiRequest<AnalyzeResponse>('/scan/analyze', {
     method: 'POST',
@@ -24,6 +26,8 @@ export async function analisarEscaneamento(textoOcr: string, nomeProduto: string
     body: { texto_ocr: textoOcr, nome_produto: nomeProduto },
   });
 }
+
+// RF09 - Histórico completo do usuário logado
 export async function buscarHistorico(): Promise<ScanRegistro[]> {
   return apiRequest<ScanRegistro[]>('/scan/history', { method: 'GET', auth: true });
 }

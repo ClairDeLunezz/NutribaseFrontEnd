@@ -16,6 +16,7 @@ export async function clearToken(): Promise<void> {
   await SecureStore.deleteItemAsync(TOKEN_KEY);
 }
 
+// --- Erro de API tipado, pra telas conseguirem mostrar a mensagem certa ---
 export class ApiError extends Error {
   status: number;
   constructor(message: string, status: number) {
@@ -31,6 +32,9 @@ interface RequestOptions {
   isFormData?: boolean; 
 }
 
+// Cliente único usado por todos os services (auth, user, scan).
+// Centraliza: montagem da URL, header de auth, parse de JSON e tratamento de erro
+// no formato que o Flask devolve ({ "erro": "mensagem" }).
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { method = 'GET', body, auth = false, isFormData = false } = options;
 

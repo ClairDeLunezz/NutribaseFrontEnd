@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { colors, radius, spacing, typography } from '../theme';
 
 interface AppTextInputProps {
@@ -27,8 +27,16 @@ export default function AppTextInput({ label, placeholder, secure, value, onChan
           secureTextEntry={secure && hidden}
         />
         {secure && (
-          <TouchableOpacity onPress={() => setHidden(!hidden)} style={styles.eyeButton}>
-            <Text style={styles.eyeIcon}>{hidden ? '👁' : '👁'}</Text>
+          <TouchableOpacity
+            onPress={() => setHidden(!hidden)}
+            style={styles.eyeButton}
+            accessibilityLabel={hidden ? 'Mostrar senha' : 'Ocultar senha'}
+          >
+            <Image
+              source={hidden ? require('../assets/icon-eye-closed.png') : require('../assets/icon-eye-open.png')}
+              style={styles.eyeIcon}
+              resizeMode="contain"
+            />
           </TouchableOpacity>
         )}
       </View>
@@ -62,6 +70,7 @@ const styles = StyleSheet.create({
     padding: spacing.xs,
   },
   eyeIcon: {
-    fontSize: 18,
+    width: 20,
+    height: 20,
   },
 });

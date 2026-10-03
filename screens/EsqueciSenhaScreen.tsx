@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import { Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import { colors, spacing, typography } from '../theme';
 import BrandHeader from '../components/BrandHeader';
 import AppTextInput from '../components/AppTextInput';
 import PrimaryButton from '../components/PrimaryButton';
+import KeyboardAvoidingScreen from '../components/KeyboardAvoidingScreen';
 import { ScreenProps } from '../types';
 
 export default function EsqueciSenhaScreen({ navigate }: ScreenProps) {
@@ -12,7 +13,7 @@ export default function EsqueciSenhaScreen({ navigate }: ScreenProps) {
   return (
     <SafeAreaView style={styles.container}>
       <BrandHeader />
-      <View style={styles.form}>
+      <KeyboardAvoidingScreen contentContainerStyle={styles.form}>
         <TouchableOpacity onPress={() => navigate('Login')} accessibilityLabel="Voltar" style={styles.backButton}>
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
@@ -21,7 +22,7 @@ export default function EsqueciSenhaScreen({ navigate }: ScreenProps) {
 
         <AppTextInput label="E-mail/Telefone" placeholder="exemplo" value={contato} onChangeText={setContato} />
         <PrimaryButton label="Enviar E-mail" onPress={() => navigate('Login')} style={{ marginTop: spacing.lg }} />
-      </View>
+      </KeyboardAvoidingScreen>
     </SafeAreaView>
   );
 }

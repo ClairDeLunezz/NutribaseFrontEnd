@@ -13,16 +13,17 @@ export async function buscarPerfil(): Promise<Usuario> {
 interface AtualizarPerfilParams {
   senhaAtual: string;
   nome?: string;
-  restricoes?: string[];
   foto?: { uri: string; name: string; type: string }; // formato aceito pelo FormData no RN
 }
 
+// RF04 - Editar perfil (nome, restrições e foto). Exige a senha atual, como no caso de uso.
 export async function atualizarPerfil(params: AtualizarPerfilParams): Promise<Usuario> {
   const formData = new FormData();
   formData.append('senha_atual', params.senhaAtual);
   if (params.nome) formData.append('nome', params.nome);
-  if (params.restricoes) formData.append('restricoes', params.restricoes.join(','));
+ 
   if (params.foto) {
+    // @ts-expect-error - RN aceita esse formato de objeto no FormData, mas o tipo do DOM não o reconhece
     formData.append('foto', { uri: params.foto.uri, name: params.foto.name, type: params.foto.type });
   }
 
@@ -35,6 +36,7 @@ export async function atualizarPerfil(params: AtualizarPerfilParams): Promise<Us
   return resposta.usuario;
 }
 
+// RF05 - Excluir conta (exige senha para confirmar)
 export async function excluirConta(senha: string): Promise<void> {
   await apiRequest<{ mensagem: string }>('/user/account', {
     method: 'DELETE',

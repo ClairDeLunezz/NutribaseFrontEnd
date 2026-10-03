@@ -5,21 +5,21 @@ import AppHeader from '../components/AppHeader';
 import AppTextInput from '../components/AppTextInput';
 import PrimaryButton from '../components/PrimaryButton';
 import { ScreenProps } from '../types';
-
+import KeyboardAvoidingScreen from '../components/KeyboardAvoidingScreen';
 
 export default function NomeProdutoScreen({ navigate, photoUri }: ScreenProps) {
   const [nome, setNome] = useState('');
 
   const confirmar = () => {
    
-    navigate('ResultadoSeguro', { photoUri, productName: nome.trim() });
+   navigate('ResultadoSeguro', { photoUri, productName: nome.trim() });
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <AppHeader showBack onBack={() => navigate('Escaneamento')} title="Nome do Produto" />
 
-      <View style={styles.content}>
+      <KeyboardAvoidingScreen contentContainerStyle={styles.content}>
         {photoUri && <Image source={{ uri: photoUri }} style={styles.photoThumb} />}
 
         <AppTextInput
@@ -30,7 +30,7 @@ export default function NomeProdutoScreen({ navigate, photoUri }: ScreenProps) {
         />
 
         <PrimaryButton label="Confirmar" onPress={confirmar} style={{ marginTop: spacing.lg }} />
-      </View>
+      </KeyboardAvoidingScreen>
     </SafeAreaView>
   );
 }
