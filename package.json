@@ -9,8 +9,10 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@react-native-ml-kit/text-recognition": "^1.5.2",
     "expo": "~54.0.36",
     "expo-camera": "~17.0.10",
+    "expo-dev-client": "~6.0.21",
     "expo-image-picker": "~17.0.11",
     "expo-secure-store": "~15.0.8",
     "expo-status-bar": "~3.0.9",
