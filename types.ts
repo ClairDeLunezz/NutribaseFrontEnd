@@ -1,4 +1,3 @@
-
 export type ScreenName =
   | 'Login'
   | 'Cadastro'
@@ -14,6 +13,8 @@ export type ScreenName =
 export interface NavigateParams {
   photoUri?: string;
   productName?: string;
+  ocrText?: string; 
+  termosEncontrados?: string[]; 
 }
 
 export type NavigateFn = (screen: ScreenName, params?: NavigateParams) => void;
@@ -22,4 +23,6 @@ export interface ScreenProps {
   navigate: NavigateFn;
   photoUri?: string;
   productName?: string;
+  ocrText?: string;
+  termosEncontrados?: string[];
 }

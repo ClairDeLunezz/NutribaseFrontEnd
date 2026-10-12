@@ -16,10 +16,14 @@ export default function App() {
   const [screen, setScreen] = useState<ScreenName>('Login');
   const [photoUri, setPhotoUri] = useState<string | undefined>(undefined);
   const [productName, setProductName] = useState<string | undefined>(undefined);
+  const [ocrText, setOcrText] = useState<string | undefined>(undefined);
+  const [termosEncontrados, setTermosEncontrados] = useState<string[] | undefined>(undefined);
 
   const navigate = (next: ScreenName, params?: NavigateParams) => {
     if (params?.photoUri !== undefined) setPhotoUri(params.photoUri);
     if (params?.productName !== undefined) setProductName(params.productName);
+    if (params?.ocrText !== undefined) setOcrText(params.ocrText);
+    if (params?.termosEncontrados !== undefined) setTermosEncontrados(params.termosEncontrados);
     setScreen(next);
   };
 
@@ -36,12 +40,18 @@ export default function App() {
       case 'Escaneamento':
         return <EscaneamentoScreen navigate={navigate} />;
       case 'NomeProduto':
-        return <NomeProdutoScreen navigate={navigate} photoUri={photoUri} />;
+        return <NomeProdutoScreen navigate={navigate} photoUri={photoUri} ocrText={ocrText} />;
       case 'ResultadoSeguro':
         return <ResultadoScreen navigate={navigate} status="seguro" photoUri={photoUri} productName={productName} />;
       case 'ResultadoPrejudicial':
         return (
-          <ResultadoScreen navigate={navigate} status="prejudicial" photoUri={photoUri} productName={productName} />
+          <ResultadoScreen
+            navigate={navigate}
+            status="prejudicial"
+            photoUri={photoUri}
+            productName={productName}
+            termosEncontrados={termosEncontrados}
+          />
         );
       case 'Perfil':
         return <PerfilScreen navigate={navigate} />;
