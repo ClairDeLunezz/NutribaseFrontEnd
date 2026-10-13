@@ -9,7 +9,13 @@ interface ResultadoScreenProps extends ScreenProps {
 }
 
 
-export default function ResultadoScreen({ navigate, status, photoUri, productName }: ResultadoScreenProps) {
+export default function ResultadoScreen({
+  navigate,
+  status,
+  photoUri,
+  productName,
+  termosEncontrados,
+}: ResultadoScreenProps) {
   const isSafe = status === 'seguro';
 
   return (
@@ -30,10 +36,15 @@ export default function ResultadoScreen({ navigate, status, photoUri, productNam
           </Text>
 
           {!isSafe && (
-            <Text style={styles.warningMessage}>
-              Este produto contém lactose em sua fórmula e pode não ser adequado para pessoas com
-              intolerância. Verifique a lista de ingredientes antes de consumir.
-            </Text>
+            <>
+              <Text style={styles.warningMessage}>
+                Encontramos ingredientes relacionados à lactose neste rótulo. Verifique a lista de
+                ingredientes antes de consumir.
+              </Text>
+              {termosEncontrados && termosEncontrados.length > 0 && (
+                <Text style={styles.termsText}>Termos detectados: {termosEncontrados.join(', ')}</Text>
+              )}
+            </>
           )}
         </View>
 
@@ -72,4 +83,5 @@ const styles = StyleSheet.create({
   },
   productName: { ...typography.h2, color: colors.textDark, marginBottom: spacing.md },
   warningMessage: { ...typography.body, color: colors.textDark, lineHeight: 22 },
+  termsText: { ...typography.body, color: colors.dangerRed, fontWeight: '600', marginTop: spacing.md },
 });

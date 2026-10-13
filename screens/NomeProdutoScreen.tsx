@@ -1,18 +1,45 @@
 import React, { useState } from 'react';
-import { View, Image, StyleSheet, SafeAreaView } from 'react-native';
+import { Image, StyleSheet, SafeAreaView, ActivityIndicator } from 'react-native';
 import { colors, spacing } from '../theme';
 import AppHeader from '../components/AppHeader';
 import AppTextInput from '../components/AppTextInput';
 import PrimaryButton from '../components/PrimaryButton';
-import { ScreenProps } from '../types';
 import KeyboardAvoidingScreen from '../components/KeyboardAvoidingScreen';
+import { ScreenProps } from '../types';
+import { analisarEscaneamento } from '../services/scanService';
+import { ApiError } from '../services/api';
+import { useToast } from '../context/ToastContext';
 
-export default function NomeProdutoScreen({ navigate, photoUri }: ScreenProps) {
+export default function NomeProdutoScreen({ navigate, photoUri, ocrText }: ScreenProps) {
   const [nome, setNome] = useState('');
+  const [analisando, setAnalisando] = useState(false);
+  const { showToast } = useToast();
 
-  const confirmar = () => {
-   
-   navigate('ResultadoSeguro', { photoUri, productName: nome.trim() });
+  const confirmar = async () => {
+    if (!nome.trim()) {
+      showToast('error', 'Informe o nome do produto.');
+      return;
+    }
+    if (!ocrText) {
+      showToast('error', 'Nenhum texto foi lido do rótulo. Volte e escaneie novamente.');
+      return;
+    }
+
+    setAnalisando(true);
+    try {
+      const resposta = await analisarEscaneamento(ocrText, nome.trim());
+      const proxima = resposta.resultado === 'prejudicial' ? 'ResultadoPrejudicial' : 'ResultadoSeguro';
+      navigate(proxima, {
+        photoUri,
+        productName: nome.trim(),
+        termosEncontrados: resposta.termos_encontrados,
+      });
+    } catch (e) {
+      const mensagem = e instanceof ApiError ? e.message : 'Não foi possível analisar o produto. Tente novamente.';
+      showToast('error', mensagem);
+    } finally {
+      setAnalisando(false);
+    }
   };
 
   return (
@@ -29,7 +56,11 @@ export default function NomeProdutoScreen({ navigate, photoUri }: ScreenProps) {
           onChangeText={setNome}
         />
 
-        <PrimaryButton label="Confirmar" onPress={confirmar} style={{ marginTop: spacing.lg }} />
+        {analisando ? (
+          <ActivityIndicator color={colors.buttonBg} style={{ marginTop: spacing.lg }} />
+        ) : (
+          <PrimaryButton label="Analisar produto" onPress={confirmar} style={{ marginTop: spacing.lg }} />
+        )}
       </KeyboardAvoidingScreen>
     </SafeAreaView>
   );

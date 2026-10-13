@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator } from 'react-native';
 import { CameraView } from 'expo-camera';
 import { colors, spacing, typography } from '../theme';
 import { useLabelCamera } from '../hooks/useLabelCamera';
+import { useToast } from '../context/ToastContext';
+import { extrairTextoDoRotulo, OcrError } from '../services/ocrService';
 import { ScreenProps } from '../types';
 
 export default function EscaneamentoScreen({ navigate }: ScreenProps) {
   const { cameraRef, permission, requestPermission, isCapturing, error, capturePhoto } = useLabelCamera();
+  const [lendoRotulo, setLendoRotulo] = useState(false);
+  const { showToast } = useToast();
 
 
   if (!permission) {
@@ -17,7 +21,6 @@ export default function EscaneamentoScreen({ navigate }: ScreenProps) {
     );
   }
 
- 
   if (!permission.granted) {
     return (
       <SafeAreaView style={styles.centered}>
@@ -41,10 +44,21 @@ export default function EscaneamentoScreen({ navigate }: ScreenProps) {
 
   const handleCapture = async () => {
     const result = await capturePhoto();
-    if (result) {
-      navigate('NomeProduto', { photoUri: result.uri });
+    if (!result) return;
+
+    setLendoRotulo(true);
+    try {
+      const textoOcr = await extrairTextoDoRotulo(result.uri);
+      navigate('NomeProduto', { photoUri: result.uri, ocrText: textoOcr });
+    } catch (e) {
+      const mensagem = e instanceof OcrError ? e.message : 'Erro inesperado ao ler o rótulo.';
+      showToast('error', mensagem);
+    } finally {
+      setLendoRotulo(false);
     }
   };
+
+  const ocupado = isCapturing || lendoRotulo;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -70,11 +84,11 @@ export default function EscaneamentoScreen({ navigate }: ScreenProps) {
       <View style={styles.bottomBar}>
         <TouchableOpacity
           onPress={handleCapture}
-          disabled={isCapturing}
+          disabled={ocupado}
           accessibilityLabel="Capturar rótulo"
           activeOpacity={0.85}
         >
-          {isCapturing ? (
+          {ocupado ? (
             <View style={styles.captureLoading}>
               <ActivityIndicator color={colors.white} />
             </View>
@@ -83,16 +97,7 @@ export default function EscaneamentoScreen({ navigate }: ScreenProps) {
           )}
         </TouchableOpacity>
 
-     
-        <TouchableOpacity
-          onPress={async () => {
-            const result = await capturePhoto();
-            navigate('NomeProduto', { photoUri: result?.uri });
-          }}
-          style={{ marginTop: spacing.lg }}
-        >
-          <Text style={styles.demoLink}>Simular produto prejudicial (demo)</Text>
-        </TouchableOpacity>
+        {lendoRotulo && <Text style={styles.readingText}>Lendo rótulo…</Text>}
       </View>
     </SafeAreaView>
   );
@@ -153,9 +158,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  demoLink: {
+  readingText: {
     color: colors.inputBg,
-    fontSize: 13,
-    textDecorationLine: 'underline',
+    ...typography.body,
+    marginTop: spacing.md,
   },
 });
