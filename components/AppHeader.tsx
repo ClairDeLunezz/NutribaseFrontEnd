@@ -1,16 +1,19 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { colors, spacing, typography } from '../theme';
+import Avatar from './Avatar';
 
 interface AppHeaderProps {
   title?: string;
   showBack?: boolean;
   onBack?: () => void;
+  avatarName?: string | null; avatarPhotoUri?: string | null;
   showAvatar?: boolean;
+
 }
 
 
-export default function AppHeader({ title, showBack, onBack, showAvatar }: AppHeaderProps) {
+export default function AppHeader({ title, showBack, onBack, showAvatar, avatarName, avatarPhotoUri }: AppHeaderProps) {
   return (
     <View style={styles.header}>
       {showBack && (
@@ -19,10 +22,10 @@ export default function AppHeader({ title, showBack, onBack, showAvatar }: AppHe
         </TouchableOpacity>
       )}
       {showAvatar && (
-        <View style={styles.avatar}>
-          <Text style={styles.avatarIcon}>🙂</Text>
-        </View>
-      )}
+  <View style={{ marginRight: spacing.md }}>
+    <Avatar name={avatarName} photoUri={avatarPhotoUri} size={48} />
+  </View>
+)}
       {title && <Text style={styles.title}>{title}</Text>}
     </View>
   );

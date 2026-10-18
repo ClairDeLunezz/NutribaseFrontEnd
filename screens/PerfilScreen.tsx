@@ -10,6 +10,7 @@ import { logout, Usuario } from '../services/authService';
 import { ApiError } from '../services/api';
 import { useToast } from '../context/ToastContext';
 import { buildAssetUrl } from '../utils/buildAssetUrl';
+import Avatar from '../components/Avatar';
 
 export default function PerfilScreen({ navigate }: ScreenProps) {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
@@ -81,13 +82,7 @@ export default function PerfilScreen({ navigate }: ScreenProps) {
           <Text style={styles.errorText}>{erroPerfil}</Text>
         ) : (
           <View style={styles.infoRow}>
-            <View style={styles.avatarLarge}>
-              {fotoUrl ? (
-                <Image source={{ uri: fotoUrl }} style={styles.avatarImage} />
-              ) : (
-                <Text style={styles.avatarIcon}>🙂</Text>
-              )}
-            </View>
+            <Avatar name={usuario?.nome} photoUri={fotoUrl} size={84} />
             <View style={styles.infoText}>
               <Text style={styles.name}>{usuario?.nome}</Text>
               <Text style={styles.detail}>{usuario?.email}</Text>
@@ -145,7 +140,7 @@ const styles = StyleSheet.create({
   },
   avatarImage: { width: '100%', height: '100%' },
   avatarIcon: { fontSize: 40 },
-  infoText: { flex: 1 },
+  infoText: { flex: 1,marginLeft: spacing.lg },
   name: { ...typography.h2, color: colors.textDark, marginBottom: spacing.xs },
   detail: { ...typography.body, color: colors.textDark },
   errorText: { color: colors.dangerRed, ...typography.body, marginTop: spacing.lg },

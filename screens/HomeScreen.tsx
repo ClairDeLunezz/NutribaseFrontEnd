@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import { colors, spacing, radius, typography } from '../theme';
 import AppHeader from '../components/AppHeader';
 import { ScreenProps } from '../types';
+import Avatar from '../components/Avatar';
+import { buildAssetUrl } from '../utils/buildAssetUrl';
+import { buscarPerfil } from '../services/userService';
 
 interface HistoricoItem {
   id: string;
@@ -13,10 +16,22 @@ interface HistoricoItem {
 const historico: HistoricoItem[] = [];
 
 export default function HomeScreen({ navigate }: ScreenProps) {
+  const [nomeUsuario, setNomeUsuario] = useState<string | null>(null);
+  const [fotoUsuario, setFotoUsuario] = useState<string | null>(null);
+
+  useEffect(() => {
+    buscarPerfil()
+      .then((usuario) => {
+        setNomeUsuario(usuario.nome);
+        setFotoUsuario(buildAssetUrl(usuario.foto_perfil));
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <TouchableOpacity onPress={() => navigate('Perfil')} activeOpacity={0.8}>
-        <AppHeader title="Início" showAvatar />
+        <AppHeader title="Início" showAvatar avatarName={nomeUsuario} avatarPhotoUri={fotoUsuario} />
       </TouchableOpacity>
 
       <ScrollView contentContainerStyle={styles.content}>

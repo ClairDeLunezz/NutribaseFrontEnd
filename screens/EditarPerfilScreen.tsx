@@ -11,6 +11,7 @@ import { buscarPerfil, atualizarPerfil } from '../services/userService';
 import { ApiError } from '../services/api';
 import { useToast } from '../context/ToastContext';
 import { buildAssetUrl } from '../utils/buildAssetUrl';
+import Avatar from '../components/Avatar';
 
 export default function EditarPerfilScreen({ navigate }: ScreenProps) {
   const [nome, setNome] = useState('');
@@ -108,7 +109,7 @@ export default function EditarPerfilScreen({ navigate }: ScreenProps) {
           {fotoParaExibir ? (
             <Image source={{ uri: fotoParaExibir }} style={styles.avatarImage} />
           ) : (
-            <Text style={styles.avatarIcon}>🙂</Text>
+           <Avatar name={nome} photoUri={fotoParaExibir} size={96} />
           )}
           <View style={styles.editBadge}>
             <Text style={styles.editBadgeIcon}>✎</Text>
