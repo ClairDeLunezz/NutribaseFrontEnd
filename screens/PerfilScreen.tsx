@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, SafeAreaView, ActivityIndicator } from 'react-native';
+import { View, Text, Image, StyleSheet, SafeAreaView, ActivityIndicator, Alert } from 'react-native';
 import { colors, spacing, typography } from '../theme';
 import AppHeader from '../components/AppHeader';
 import PrimaryButton from '../components/PrimaryButton';
@@ -43,11 +43,19 @@ export default function PerfilScreen({ navigate }: ScreenProps) {
     }
   };
 
-  const handleLogoff = async () => {
-    await logout(); // já limpa o token localmente mesmo se a chamada à API falhar
-    showToast('success', 'Sessão encerrada.');
-    navigate('Login');
-  };
+  const handleLogoff = () => {
+  Alert.alert('Fazer logoff', 'Deseja encerrar a sessão?', [
+    { text: 'Cancelar', style: 'cancel' },
+    {
+      text: 'Sair',
+      onPress: async () => {
+        await logout();
+        showToast('success', 'Sessão encerrada.');
+        navigate('Login');
+      },
+    },
+  ]);
+};
 
   const handleConfirmarExclusao = async (senha: string) => {
     if (!senha) {

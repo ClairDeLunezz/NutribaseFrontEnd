@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import React, { useEffect, useState,  } from 'react';
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView} from 'react-native';
 import { colors, spacing, radius, typography } from '../theme';
 import AppHeader from '../components/AppHeader';
 import { ScreenProps } from '../types';
