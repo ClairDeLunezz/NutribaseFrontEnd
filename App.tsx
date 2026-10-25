@@ -20,7 +20,7 @@ export default function App() {
   const [termosEncontrados, setTermosEncontrados] = useState<string[] | undefined>(undefined);
 
   const navigate = (next: ScreenName, params?: NavigateParams) => {
-    if (params?.photoUri !== undefined) setPhotoUri(params.photoUri);
+   if (params && 'photoUri' in params) setPhotoUri(params.photoUri);
     if (params?.productName !== undefined) setProductName(params.productName);
     if (params?.ocrText !== undefined) setOcrText(params.ocrText);
     if (params?.termosEncontrados !== undefined) setTermosEncontrados(params.termosEncontrados);

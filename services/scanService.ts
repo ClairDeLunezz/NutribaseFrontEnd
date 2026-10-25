@@ -1,15 +1,12 @@
 import { apiRequest } from './api';
+import { extrairLista } from '../utils/extrairLista';
 
 export interface ScanRegistro {
   id: number;
-  usuario_id: number;
   nome_produto: string;
   resultado: 'seguro' | 'prejudicial';
-  detalhes: {
-    texto_analisado: string;
-    termos_encontrados: string[];
-  };
-  criado_em: string;
+  detalhes?: { termos_encontrados?: string[]; [chave: string]: unknown } | null;
+  criado_em: string | null;
 }
 
 interface AnalyzeResponse {
@@ -27,12 +24,14 @@ export async function analisarEscaneamento(textoOcr: string, nomeProduto: string
   });
 }
 
-// RF09 - Histórico completo do usuário logado
+
 export async function buscarHistorico(): Promise<ScanRegistro[]> {
-  return apiRequest<ScanRegistro[]>('/scan/history', { method: 'GET', auth: true });
+  const resposta = await apiRequest<unknown>('/scan/history', { method: 'GET', auth: true });
+  return extrairLista<ScanRegistro>(resposta);
 }
 
 // Detalhe de um item específico do histórico
 export async function buscarDetalheHistorico(id: number): Promise<ScanRegistro> {
   return apiRequest<ScanRegistro>(`/scan/history/${id}`, { method: 'GET', auth: true });
 }
+
