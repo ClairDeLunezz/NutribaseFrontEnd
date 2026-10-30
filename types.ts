@@ -8,7 +8,8 @@ export type ScreenName =
   | 'ResultadoSeguro'
   | 'ResultadoPrejudicial'
   | 'Perfil'
-  | 'EditarPerfil';
+  | 'EditarPerfil'
+  | 'Disclaimer';
 
 export interface NavigateParams {
   photoUri?: string;
