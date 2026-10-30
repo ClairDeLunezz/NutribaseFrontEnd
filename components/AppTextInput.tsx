@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, KeyboardTypeOptions } from 'react-native';
 import { colors, radius, spacing, typography } from '../theme';
 
 interface AppTextInputProps {
@@ -8,10 +8,22 @@ interface AppTextInputProps {
   secure?: boolean;
   value: string;
   onChangeText: (text: string) => void;
+  keyboardType?: KeyboardTypeOptions;
+  maxLength?: number;
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
 }
 
 
-export default function AppTextInput({ label, placeholder, secure, value, onChangeText }: AppTextInputProps) {
+export default function AppTextInput({
+  label,
+  placeholder,
+  secure,
+  value,
+  onChangeText,
+  keyboardType,
+  maxLength,
+  autoCapitalize,
+}: AppTextInputProps) {
   const [hidden, setHidden] = useState(!!secure);
 
   return (
@@ -25,6 +37,9 @@ export default function AppTextInput({ label, placeholder, secure, value, onChan
           value={value}
           onChangeText={onChangeText}
           secureTextEntry={secure && hidden}
+          keyboardType={keyboardType}
+          maxLength={maxLength}
+          autoCapitalize={autoCapitalize}
         />
         {secure && (
           <TouchableOpacity
