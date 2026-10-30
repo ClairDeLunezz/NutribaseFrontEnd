@@ -11,6 +11,7 @@ import PerfilScreen from './screens/PerfilScreen';
 import EditarPerfilScreen from './screens/EditarPerfilScreen';
 import { ToastProvider } from './context/ToastContext';
 import { ScreenName, NavigateParams } from './types';
+import DisclaimerScreen from './screens/DisclaimerScreen';
 
 export default function App() {
   const [screen, setScreen] = useState<ScreenName>('Login');
@@ -59,6 +60,8 @@ export default function App() {
         return <EditarPerfilScreen navigate={navigate} />;
       default:
         return <LoginScreen navigate={navigate} />;
+         case 'Disclaimer':
+        return <DisclaimerScreen navigate={navigate} />;
     }
   };
 

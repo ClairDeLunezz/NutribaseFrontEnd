@@ -9,6 +9,7 @@ import { ScreenProps } from '../types';
 import { login } from '../services/authService';
 import { ApiError } from '../services/api';
 import { useToast } from '../context/ToastContext';
+import { disclaimerJaAceito } from '../utils/disclaimer';
 
 export default function LoginScreen({ navigate }: ScreenProps) {
   const [email, setEmail] = useState('');
@@ -24,9 +25,9 @@ export default function LoginScreen({ navigate }: ScreenProps) {
 
     setCarregando(true);
     try {
-      await login(email.trim().toLowerCase(), senha);
+      const usuario = await login(email.trim().toLowerCase(), senha);
       showToast('success', 'Login realizado com sucesso!');
-      navigate('Home');
+      navigate((await disclaimerJaAceito(usuario.id)) ? 'Home' : 'Disclaimer');
     } catch (e) {
       const mensagem = e instanceof ApiError ? e.message : 'Não foi possível fazer login. Tente novamente.';
       showToast('error', mensagem);
