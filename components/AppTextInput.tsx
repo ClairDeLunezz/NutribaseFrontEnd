@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, KeyboardTypeOptions } from 'react-native';
 import { colors, radius, spacing, typography } from '../theme';
 
@@ -11,6 +11,9 @@ interface AppTextInputProps {
   keyboardType?: KeyboardTypeOptions;
   maxLength?: number;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  autoComplete?: 'off' | 'email' | 'name' | 'password' | 'new-password' | 'username' | 'one-time-code';
+
+  revelar?: number;
 }
 
 
@@ -23,8 +26,14 @@ export default function AppTextInput({
   keyboardType,
   maxLength,
   autoCapitalize,
+  autoComplete,
+  revelar,
 }: AppTextInputProps) {
   const [hidden, setHidden] = useState(!!secure);
+
+  useEffect(() => {
+    if (revelar) setHidden(false);
+  }, [revelar]);
 
   return (
     <View style={styles.wrapper}>
@@ -39,7 +48,9 @@ export default function AppTextInput({
           secureTextEntry={secure && hidden}
           keyboardType={keyboardType}
           maxLength={maxLength}
-          autoCapitalize={autoCapitalize}
+          autoCapitalize={secure ? 'none' : autoCapitalize}
+          autoCorrect={secure ? false : undefined}
+          autoComplete={autoComplete}
         />
         {secure && (
           <TouchableOpacity
