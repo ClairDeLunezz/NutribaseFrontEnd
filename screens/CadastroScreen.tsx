@@ -4,11 +4,13 @@ import { colors, spacing, typography } from '../theme';
 import BrandHeader from '../components/BrandHeader';
 import AppTextInput from '../components/AppTextInput';
 import PrimaryButton from '../components/PrimaryButton';
+import PasswordStrength from '../components/PasswordStrength';
 import KeyboardAvoidingScreen from '../components/KeyboardAvoidingScreen';
 import { ScreenProps } from '../types';
 import { registrar } from '../services/authService';
 import { ApiError } from '../services/api';
 import { useToast } from '../context/ToastContext';
+import { gerarSenha, validarSenha } from '../utils/senha';
 
 export default function CadastroScreen({ navigate }: ScreenProps) {
   const [nome, setNome] = useState('');
@@ -16,6 +18,7 @@ export default function CadastroScreen({ navigate }: ScreenProps) {
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [carregando, setCarregando] = useState(false);
+  const [revelar, setRevelar] = useState(0);
   const { showToast } = useToast();
 
   const handleCadastro = async () => {
@@ -27,8 +30,9 @@ export default function CadastroScreen({ navigate }: ScreenProps) {
       showToast('error', 'As senhas não coincidem.');
       return;
     }
-    if (senha.length < 6) {
-      showToast('error', 'A senha deve ter ao menos 6 caracteres.');
+    const erroSenha = validarSenha(senha);
+    if (erroSenha) {
+      showToast('error', erroSenha);
       return;
     }
 
@@ -45,6 +49,16 @@ export default function CadastroScreen({ navigate }: ScreenProps) {
     }
   };
 
+  const handleGerarSenha = () => {
+    const nova = gerarSenha();
+    setSenha(nova);
+    setConfirmarSenha(nova);
+    setRevelar((n) => n + 1);
+    showToast('success', 'Senha gerada. Anote-a em um lugar seguro antes de continuar.');
+  };
+
+  const senhasDiferentes = confirmarSenha.length > 0 && senha !== confirmarSenha;
+
   return (
     <SafeAreaView style={styles.container}>
       <BrandHeader />
@@ -55,10 +69,36 @@ export default function CadastroScreen({ navigate }: ScreenProps) {
 
         <Text style={styles.title}>Cadastrar-se</Text>
 
-        <AppTextInput label="Nome" placeholder="Seu nome completo" value={nome} onChangeText={setNome} />
-        <AppTextInput label="E-mail" placeholder="exemplo@email.com" value={contato} onChangeText={setContato} />
-        <AppTextInput label="Senha" secure value={senha} onChangeText={setSenha} />
-        <AppTextInput label="Confirmar Senha" secure value={confirmarSenha} onChangeText={setConfirmarSenha} />
+        <AppTextInput
+          label="Nome"
+          placeholder="Seu nome completo"
+          value={nome}
+          onChangeText={setNome}
+          autoCapitalize="words"
+          autoComplete="name"
+          maxLength={120}
+        />
+        <AppTextInput
+          label="E-mail"
+          placeholder="exemplo@email.com"
+          value={contato}
+          onChangeText={setContato}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoComplete="email"
+          maxLength={150}
+        />
+        <AppTextInput label="Senha" secure value={senha} onChangeText={setSenha} autoComplete="new-password" revelar={revelar} />
+        <PasswordStrength senha={senha} onGerar={handleGerarSenha} />
+        <AppTextInput
+          label="Confirmar Senha"
+          secure
+          value={confirmarSenha}
+          onChangeText={setConfirmarSenha}
+          autoComplete="new-password"
+          revelar={revelar}
+        />
+        {senhasDiferentes && <Text style={styles.errorText}>As senhas não coincidem.</Text>}
 
         {carregando ? (
           <ActivityIndicator color={colors.buttonBg} style={{ marginTop: spacing.lg }} />
