@@ -4,11 +4,13 @@ import { colors, spacing, typography } from '../theme';
 import BrandHeader from '../components/BrandHeader';
 import AppTextInput from '../components/AppTextInput';
 import PrimaryButton from '../components/PrimaryButton';
+import PasswordStrength from '../components/PasswordStrength';
 import KeyboardAvoidingScreen from '../components/KeyboardAvoidingScreen';
 import { ScreenProps } from '../types';
 import { solicitarRecuperacaoSenha, redefinirSenha } from '../services/authService';
 import { ApiError } from '../services/api';
 import { useToast } from '../context/ToastContext';
+import { gerarSenha, validarSenha } from '../utils/senha';
 
 type Etapa = 'email' | 'codigo';
 
@@ -19,6 +21,7 @@ export default function EsqueciSenhaScreen({ navigate }: ScreenProps) {
   const [novaSenha, setNovaSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [carregando, setCarregando] = useState(false);
+  const [revelar, setRevelar] = useState(0);
   const { showToast } = useToast();
 
   const emailNormalizado = email.trim().toLowerCase();
@@ -53,13 +56,24 @@ export default function EsqueciSenhaScreen({ navigate }: ScreenProps) {
     }
   };
 
+  const handleGerarSenha = () => {
+    const nova = gerarSenha();
+    setNovaSenha(nova);
+    setConfirmarSenha(nova);
+    setRevelar((n) => n + 1);
+    showToast('success', 'Senha gerada. Anote-a em um lugar seguro antes de continuar.');
+  };
+
+  const senhasDiferentes = confirmarSenha.length > 0 && novaSenha !== confirmarSenha;
+
   const handleRedefinir = async () => {
     if (codigo.length !== 6) {
       showToast('error', 'Digite o código de 6 dígitos.');
       return;
     }
-    if (novaSenha.length < 6) {
-      showToast('error', 'A senha deve ter ao menos 6 caracteres.');
+    const erroSenha = validarSenha(novaSenha);
+    if (erroSenha) {
+      showToast('error', erroSenha);
       return;
     }
     if (novaSenha !== confirmarSenha) {
@@ -120,8 +134,24 @@ export default function EsqueciSenhaScreen({ navigate }: ScreenProps) {
               keyboardType="number-pad"
               maxLength={6}
             />
-            <AppTextInput label="Nova senha" secure value={novaSenha} onChangeText={setNovaSenha} />
-            <AppTextInput label="Confirmar nova senha" secure value={confirmarSenha} onChangeText={setConfirmarSenha} />
+            <AppTextInput
+              label="Nova senha"
+              secure
+              value={novaSenha}
+              onChangeText={setNovaSenha}
+              autoComplete="new-password"
+              revelar={revelar}
+            />
+            <PasswordStrength senha={novaSenha} onGerar={handleGerarSenha} />
+            <AppTextInput
+              label="Confirmar nova senha"
+              secure
+              value={confirmarSenha}
+              onChangeText={setConfirmarSenha}
+              autoComplete="new-password"
+              revelar={revelar}
+            />
+            {senhasDiferentes && <Text style={styles.errorText}>As senhas não coincidem.</Text>}
 
             {carregando ? (
               <ActivityIndicator color={colors.buttonBg} style={{ marginTop: spacing.lg }} />
@@ -146,5 +176,6 @@ const styles = StyleSheet.create({
   backIcon: { fontSize: 24, color: colors.textDark },
   title: { ...typography.h1, fontSize: 32, color: colors.textDark, marginBottom: spacing.lg },
   info: { ...typography.body, color: colors.textDark, marginBottom: spacing.lg },
+  errorText: { color: colors.dangerRed, fontSize: 14, marginBottom: spacing.sm },
   link: { ...typography.body, color: colors.textDark, textAlign: 'center', marginTop: spacing.lg, textDecorationLine: 'underline' },
 });
