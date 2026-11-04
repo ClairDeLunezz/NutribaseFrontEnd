@@ -67,3 +67,57 @@ export function validarSenha(senha: string): string | null {
   if (requisitos.every((r) => r.ok)) return null;
   return `A senha deve ter ao menos ${SENHA_MIN} caracteres, com letra, número e caractere especial.`;
 }
+
+const MINUSCULAS = 'abcdefghijkmnpqrstuvwxyz';
+const MAIUSCULAS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+const NUMEROS = '23456789';
+const ESPECIAIS = '!@#$%&*?-_+=';
+
+
+function bytesAleatorios(n: number): Uint8Array {
+  try {
+
+    const Crypto = require('expo-crypto');
+    return Crypto.getRandomBytes(n) as Uint8Array;
+  } catch {
+  
+  }
+  const g = globalThis as { crypto?: { getRandomValues?: (a: Uint8Array) => Uint8Array } };
+  const arr = new Uint8Array(n);
+  if (g.crypto?.getRandomValues) {
+    g.crypto.getRandomValues(arr);
+    return arr;
+  }
+
+  for (let i = 0; i < n; i++) arr[i] = Math.floor(Math.random() * 256);
+  return arr;
+}
+
+
+function inteiroAleatorio(max: number): number {
+  const limite = 256 - (256 % max);
+  for (;;) {
+    const [b] = bytesAleatorios(1);
+    if (b < limite) return b % max;
+  }
+}
+
+function sortear(conjunto: string): string {
+  return conjunto[inteiroAleatorio(conjunto.length)];
+}
+
+
+export function gerarSenha(tamanho = 14): string {
+  const n = Math.min(32, Math.max(SENHA_MIN, Math.floor(tamanho)));
+  const todos = MINUSCULAS + MAIUSCULAS + NUMEROS + ESPECIAIS;
+
+  const chars = [sortear(MINUSCULAS), sortear(MAIUSCULAS), sortear(NUMEROS), sortear(ESPECIAIS)];
+  while (chars.length < n) chars.push(sortear(todos));
+
+
+  for (let i = chars.length - 1; i > 0; i--) {
+    const j = inteiroAleatorio(i + 1);
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+  return chars.join('');
+}
