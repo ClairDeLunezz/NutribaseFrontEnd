@@ -16,6 +16,7 @@ import PrimaryButton from '../components/PrimaryButton';
 import { ScreenProps } from '../types';
 import { buscarPerfil } from '../services/userService';
 import { buscarHistorico, ScanRegistro } from '../services/scanService';
+import { infoResultado, normalizarResultado, telaResultado } from '../utils/resultado';
 import { ApiError } from '../services/api';
 import { useToast } from '../context/ToastContext';
 import { buildAssetUrl } from '../utils/buildAssetUrl';
@@ -65,10 +66,11 @@ export default function HomeScreen({ navigate }: ScreenProps) {
   };
 
   const abrirRegistro = (registro: ScanRegistro) => {
-    navigate(registro.resultado === 'prejudicial' ? 'ResultadoPrejudicial' : 'ResultadoSeguro', {
+    navigate(telaResultado(normalizarResultado(registro.resultado)), {
       photoUri: undefined,
       productName: registro.nome_produto,
       termosEncontrados: registro.detalhes?.termos_encontrados ?? [],
+      advertencias: registro.detalhes?.advertencias ?? [],
     });
   };
 
@@ -102,24 +104,22 @@ export default function HomeScreen({ navigate }: ScreenProps) {
           </View>
         ) : (
           registros.map((item) => {
-            const seguro = item.resultado !== 'prejudicial';
-            const cor = seguro ? colors.safeGreen : colors.dangerRed;
+            const status = normalizarResultado(item.resultado);
+            const { cor, icone, titulo } = infoResultado(status);
             return (
               <TouchableOpacity
                 key={item.id}
                 style={styles.card}
                 onPress={() => abrirRegistro(item)}
                 activeOpacity={0.85}
-                accessibilityLabel={`${item.nome_produto}, ${seguro ? 'produto seguro' : 'produto prejudicial'}`}
+                accessibilityLabel={`${item.nome_produto}, ${titulo}`}
               >
                 <View style={[styles.cardBar, { backgroundColor: cor }]} />
                 <View style={styles.cardBody}>
                   <Text style={styles.cardTitle}>{item.nome_produto}</Text>
                   <View style={styles.statusRow}>
-                    <Text style={{ color: cor, fontSize: 18 }}>{seguro ? '✓' : '⚠'}</Text>
-                    <Text style={[styles.statusText, { color: cor }]}>
-                      {seguro ? 'Produto Seguro' : 'Produto Prejudicial'}
-                    </Text>
+                    <Text style={{ color: cor, fontSize: 18 }}>{icone}</Text>
+                    <Text style={[styles.statusText, { color: cor }]}>{titulo}</Text>
                   </View>
                   {!!formatarData(item.criado_em) && (
                     <Text style={styles.cardDate}>{formatarData(item.criado_em)}</Text>
