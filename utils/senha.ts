@@ -1,4 +1,3 @@
-
 export const SENHA_MIN = 8;
 export const SENHA_MAX_BYTES = 72;
 
@@ -28,7 +27,7 @@ function tamanhoEmBytes(texto: string): number {
     if (c < 0x80) bytes += 1;
     else if (c < 0x800) bytes += 2;
     else if (c >= 0xd800 && c <= 0xdbff) {
-      bytes += 4;
+      bytes += 4; 
       i++;
     } else bytes += 3;
   }
@@ -74,25 +73,36 @@ const NUMEROS = '23456789';
 const ESPECIAIS = '!@#$%&*?-_+=';
 
 
-function bytesAleatorios(n: number): Uint8Array {
+let _cryptoNativo: { getRandomBytes: (n: number) => Uint8Array } | null | undefined;
+function cryptoNativo() {
+  if (_cryptoNativo !== undefined) return _cryptoNativo;
+  _cryptoNativo = null;
   try {
 
-    const Crypto = require('expo-crypto');
-    return Crypto.getRandomBytes(n) as Uint8Array;
+    const { requireOptionalNativeModule } = require('expo-modules-core');
+    if (requireOptionalNativeModule('ExpoCrypto')) {
+
+      _cryptoNativo = require('expo-crypto');
+    }
   } catch {
-  
+    _cryptoNativo = null;
   }
+  return _cryptoNativo;
+}
+
+
+function bytesAleatorios(n: number): Uint8Array {
+  const nativo = cryptoNativo();
+  if (nativo) return nativo.getRandomBytes(n) as Uint8Array;
   const g = globalThis as { crypto?: { getRandomValues?: (a: Uint8Array) => Uint8Array } };
   const arr = new Uint8Array(n);
   if (g.crypto?.getRandomValues) {
     g.crypto.getRandomValues(arr);
     return arr;
   }
-
   for (let i = 0; i < n; i++) arr[i] = Math.floor(Math.random() * 256);
   return arr;
 }
-
 
 function inteiroAleatorio(max: number): number {
   const limite = 256 - (256 % max);
