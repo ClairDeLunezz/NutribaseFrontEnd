@@ -3,9 +3,10 @@ import { View, Text, Image, StyleSheet, SafeAreaView } from 'react-native';
 import { colors, spacing, radius, typography } from '../theme';
 import PrimaryButton from '../components/PrimaryButton';
 import { ScreenProps } from '../types';
+import { ResultadoScan, infoResultado } from '../utils/resultado';
 
 interface ResultadoScreenProps extends ScreenProps {
-  status: 'seguro' | 'prejudicial';
+  status: ResultadoScan;
 }
 
 
@@ -15,8 +16,9 @@ export default function ResultadoScreen({
   photoUri,
   productName,
   termosEncontrados,
+  advertencias,
 }: ResultadoScreenProps) {
-  const isSafe = status === 'seguro';
+  const { cor, icone, titulo } = infoResultado(status);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -25,9 +27,9 @@ export default function ResultadoScreen({
       <View style={styles.body}>
         {photoUri && <Image source={{ uri: photoUri }} style={styles.photoThumb} />}
 
-        <View style={[styles.banner, { backgroundColor: isSafe ? colors.safeGreen : colors.dangerRed }]}>
-          <Text style={styles.bannerIcon}>{isSafe ? '✓' : '⚠'}</Text>
-          <Text style={styles.bannerText}>{isSafe ? 'Produto Seguro' : 'Produto Prejudicial'}</Text>
+        <View style={[styles.banner, { backgroundColor: cor }]}>
+          <Text style={styles.bannerIcon}>{icone}</Text>
+          <Text style={styles.bannerText}>{titulo}</Text>
         </View>
 
         <View style={styles.card}>
@@ -35,14 +37,35 @@ export default function ResultadoScreen({
             {productName || 'Produto sem nome informado'}
           </Text>
 
-          {!isSafe && (
+          {status === 'prejudicial' && (
             <>
               <Text style={styles.warningMessage}>
                 Encontramos ingredientes relacionados à lactose neste rótulo. Verifique a lista de
                 ingredientes antes de consumir.
               </Text>
               {termosEncontrados && termosEncontrados.length > 0 && (
-                <Text style={styles.termsText}>Termos detectados: {termosEncontrados.join(', ')}</Text>
+                <Text style={[styles.termsText, { color: cor }]}>
+                  Termos detectados: {termosEncontrados.join(', ')}
+                </Text>
+              )}
+            </>
+          )}
+
+          {status === 'atencao' && (
+            <>
+              <Text style={styles.warningMessage}>
+                Não encontramos leite entre os ingredientes. O rótulo traz apenas um aviso de
+                contaminação cruzada: o produto é feito em um local que também processa leite, então
+                pode haver traços.
+              </Text>
+              <Text style={styles.warningMessage}>
+                Quem tem intolerância à lactose costuma tolerar essa quantidade. Já quem tem alergia
+                à proteína do leite deve evitar. Na dúvida, fale com seu médico ou nutricionista.
+              </Text>
+              {advertencias && advertencias.length > 0 && (
+                <Text style={[styles.termsText, { color: cor }]}>
+                  Aviso no rótulo: {advertencias.join('; ')}
+                </Text>
               )}
             </>
           )}
@@ -82,6 +105,6 @@ const styles = StyleSheet.create({
     minHeight: 220,
   },
   productName: { ...typography.h2, color: colors.textDark, marginBottom: spacing.md },
-  warningMessage: { ...typography.body, color: colors.textDark, lineHeight: 22 },
-  termsText: { ...typography.body, color: colors.dangerRed, fontWeight: '600', marginTop: spacing.md },
+  warningMessage: { ...typography.body, color: colors.textDark, lineHeight: 22, marginBottom: spacing.sm },
+  termsText: { ...typography.body, fontWeight: '600', marginTop: spacing.md },
 });
