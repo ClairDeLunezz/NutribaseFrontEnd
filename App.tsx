@@ -19,12 +19,14 @@ export default function App() {
   const [productName, setProductName] = useState<string | undefined>(undefined);
   const [ocrText, setOcrText] = useState<string | undefined>(undefined);
   const [termosEncontrados, setTermosEncontrados] = useState<string[] | undefined>(undefined);
+  const [advertencias, setAdvertencias] = useState<string[] | undefined>(undefined);
 
   const navigate = (next: ScreenName, params?: NavigateParams) => {
    if (params && 'photoUri' in params) setPhotoUri(params.photoUri);
     if (params?.productName !== undefined) setProductName(params.productName);
     if (params?.ocrText !== undefined) setOcrText(params.ocrText);
     if (params?.termosEncontrados !== undefined) setTermosEncontrados(params.termosEncontrados);
+    if (params?.advertencias !== undefined) setAdvertencias(params.advertencias);
     setScreen(next);
   };
 
@@ -44,6 +46,16 @@ export default function App() {
         return <NomeProdutoScreen navigate={navigate} photoUri={photoUri} ocrText={ocrText} />;
       case 'ResultadoSeguro':
         return <ResultadoScreen navigate={navigate} status="seguro" photoUri={photoUri} productName={productName} />;
+      case 'ResultadoAtencao':
+        return (
+          <ResultadoScreen
+            navigate={navigate}
+            status="atencao"
+            photoUri={photoUri}
+            productName={productName}
+            advertencias={advertencias}
+          />
+        );
       case 'ResultadoPrejudicial':
         return (
           <ResultadoScreen
