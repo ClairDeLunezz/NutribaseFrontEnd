@@ -7,6 +7,7 @@ import PrimaryButton from '../components/PrimaryButton';
 import KeyboardAvoidingScreen from '../components/KeyboardAvoidingScreen';
 import { ScreenProps } from '../types';
 import { analisarEscaneamento } from '../services/scanService';
+import { normalizarResultado, telaResultado } from '../utils/resultado';
 import { ApiError } from '../services/api';
 import { useToast } from '../context/ToastContext';
 
@@ -28,11 +29,12 @@ export default function NomeProdutoScreen({ navigate, photoUri, ocrText }: Scree
     setAnalisando(true);
     try {
       const resposta = await analisarEscaneamento(ocrText, nome.trim());
-      const proxima = resposta.resultado === 'prejudicial' ? 'ResultadoPrejudicial' : 'ResultadoSeguro';
-      navigate(proxima, {
+      const status = normalizarResultado(resposta.resultado);
+      navigate(telaResultado(status), {
         photoUri,
         productName: nome.trim(),
         termosEncontrados: resposta.termos_encontrados,
+        advertencias: resposta.advertencias ?? [],
       });
     } catch (e) {
       const mensagem = e instanceof ApiError ? e.message : 'Não foi possível analisar o produto. Tente novamente.';
