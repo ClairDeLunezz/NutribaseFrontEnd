@@ -1,17 +1,23 @@
 import { apiRequest } from './api';
 import { extrairLista } from '../utils/extrairLista';
+import { ResultadoScan } from '../utils/resultado';
 
 export interface ScanRegistro {
   id: number;
   nome_produto: string;
-  resultado: 'seguro' | 'prejudicial';
-  detalhes?: { termos_encontrados?: string[]; [chave: string]: unknown } | null;
+  resultado: ResultadoScan;
+  detalhes?: {
+    termos_encontrados?: string[];
+    advertencias?: string[];
+    [chave: string]: unknown;
+  } | null;
   criado_em: string | null;
 }
 
 interface AnalyzeResponse {
-  resultado: 'seguro' | 'prejudicial';
+  resultado: ResultadoScan;
   termos_encontrados: string[];
+  advertencias?: string[];
   registro: ScanRegistro;
 }
 
