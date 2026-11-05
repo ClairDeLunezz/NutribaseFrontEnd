@@ -6,6 +6,7 @@ export type ScreenName =
   | 'Escaneamento'
   | 'NomeProduto'
   | 'ResultadoSeguro'
+  | 'ResultadoAtencao'
   | 'ResultadoPrejudicial'
   | 'Perfil'
   | 'EditarPerfil'
@@ -14,8 +15,9 @@ export type ScreenName =
 export interface NavigateParams {
   photoUri?: string;
   productName?: string;
-  ocrText?: string; 
-  termosEncontrados?: string[]; 
+  ocrText?: string;
+  termosEncontrados?: string[];
+  advertencias?: string[];
 }
 
 export type NavigateFn = (screen: ScreenName, params?: NavigateParams) => void;
@@ -26,4 +28,5 @@ export interface ScreenProps {
   productName?: string;
   ocrText?: string;
   termosEncontrados?: string[];
+  advertencias?: string[];
 }
