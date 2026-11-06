@@ -19,7 +19,7 @@ const AVISOS = [
   {
     titulo: 'A leitura do rótulo pode falhar',
     texto:
-      'O texto é lido pela câmera. Letras pequenas, reflexo, pouca luz ou fundos de baixo contraste podem fazer com que parte do rótulo não seja lida.',
+      'O texto é lido pela câmera. Letras pequenas, reflexo, pouca luz ou fundos de baixo contraste podem fazer com que parte do rótulo não seja lida. O app só considera o que foi fotografado: se a embalagem declara “zero lactose” em outro lado, tire também uma foto desse trecho.',
   },
   {
     titulo: '“Produto Seguro” não é uma garantia',

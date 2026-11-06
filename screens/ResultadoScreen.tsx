@@ -48,19 +48,19 @@ export default function ResultadoScreen({
                   Termos detectados: {termosEncontrados.join(', ')}
                 </Text>
               )}
+              <Text style={styles.dica}>
+                Se a embalagem declara “zero lactose” em outro lado, escaneie de novo e fotografe esse trecho também.
+              </Text>
             </>
           )}
 
           {status === 'atencao' && (
             <>
               <Text style={styles.warningMessage}>
-                Não encontramos leite entre os ingredientes. O rótulo traz apenas um aviso de
-                contaminação cruzada: o produto é feito em um local que também processa leite, então
-                pode haver traços.
+                Não encontramos leite entre os ingredientes. O rótulo traz apenas um aviso de que pode haver traços.
               </Text>
               <Text style={styles.warningMessage}>
-                Quem tem intolerância à lactose costuma tolerar essa quantidade. Já quem tem alergia
-                à proteína do leite deve evitar. Na dúvida, fale com seu médico ou nutricionista.
+                Na dúvida, confira a embalagem e fale com seu médico ou nutricionista.
               </Text>
               {advertencias && advertencias.length > 0 && (
                 <Text style={[styles.termsText, { color: cor }]}>
@@ -106,5 +106,6 @@ const styles = StyleSheet.create({
   },
   productName: { ...typography.h2, color: colors.textDark, marginBottom: spacing.md },
   warningMessage: { ...typography.body, color: colors.textDark, lineHeight: 22, marginBottom: spacing.sm },
+  dica: { ...typography.body, color: colors.textDark, fontStyle: 'italic', marginTop: spacing.md },
   termsText: { ...typography.body, fontWeight: '600', marginTop: spacing.md },
 });

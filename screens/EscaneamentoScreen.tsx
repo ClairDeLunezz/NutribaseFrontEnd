@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator, ScrollView } from 'react-native';
 import { CameraView } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, spacing, typography } from '../theme';
@@ -14,6 +14,12 @@ export default function EscaneamentoScreen({ navigate }: ScreenProps) {
   const { cameraRef, permission, requestPermission, isCapturing, error, capturePhoto } = useLabelCamera();
   const [lendoRotulo, setLendoRotulo] = useState(false);
   const [lanterna, setLanterna] = useState(false);
+  const partesRef = useRef<{ uri: string; texto: string }[]>([]);
+  const [partes, setPartes] = useState<{ uri: string; texto: string }[]>([]);
+  const atualizarPartes = (lista: { uri: string; texto: string }[]) => {
+    partesRef.current = lista;
+    setPartes(lista);
+  };
   const cameraBoxRef = useRef<View>(null);
   const frameRef = useRef<View>(null);
   const { showToast } = useToast();
@@ -47,8 +53,17 @@ export default function EscaneamentoScreen({ navigate }: ScreenProps) {
   }
 
   const analisarImagem = async (uri: string) => {
-    const textoOcr = await extrairTextoDoRotulo(uri);
-    navigate('NomeProduto', { photoUri: uri, ocrText: textoOcr });
+    
+    const primeira = partesRef.current.length === 0;
+    const texto = await extrairTextoDoRotulo(uri, primeira ? undefined : 3);
+    atualizarPartes([...partesRef.current, { uri, texto }]);
+    showToast('success', primeira ? 'Foto lida.' : `Foto ${partesRef.current.length} lida e adicionada.`);
+  };
+
+  const continuar = () => {
+    const lista = partesRef.current;
+    if (lista.length === 0) return;
+    navigate('NomeProduto', { photoUri: lista[0].uri, ocrText: lista.map((p) => p.texto).join('\n') });
   };
 
   const executar = async (tarefa: () => Promise<void>) => {
@@ -77,7 +92,7 @@ export default function EscaneamentoScreen({ navigate }: ScreenProps) {
   const handleGaleria = async () => {
     const resultado = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
-      allowsEditing: true, // deixa o usuário recortar só a lista de ingredientes
+      allowsEditing: true,
       quality: 1,
     });
     if (resultado.canceled || resultado.assets.length === 0) return;
@@ -136,8 +151,32 @@ export default function EscaneamentoScreen({ navigate }: ScreenProps) {
           <Text style={styles.readingText}>Lendo rótulo…</Text>
         ) : (
           <TouchableOpacity onPress={handleGaleria} disabled={ocupado} style={{ marginTop: spacing.md }}>
-            <Text style={styles.galleryLink}>Escolher da galeria</Text>
+            <Text style={styles.galleryLink}>{partes.length > 0 ? 'Adicionar da galeria' : 'Escolher da galeria'}</Text>
           </TouchableOpacity>
+        )}
+
+        {partes.length > 0 && !lendoRotulo && (
+          <View style={styles.partesBox}>
+            <Text style={styles.partesTitulo}>
+              {partes.length === 1 ? '1 foto lida' : `${partes.length} fotos lidas`}
+            </Text>
+            <ScrollView horizontal style={{ marginTop: spacing.sm }} contentContainerStyle={{ gap: spacing.sm }}>
+              {partes.map((p, i) => (
+                <Image key={p.uri + i} source={{ uri: p.uri }} style={styles.parteThumb} />
+              ))}
+            </ScrollView>
+            <Text style={styles.partesDica}>
+              Se a embalagem tiver o selo “zero lactose” em outro lado, tire também uma foto dele.
+            </Text>
+            <View style={styles.partesBotoes}>
+              <TouchableOpacity onPress={() => atualizarPartes([])} disabled={ocupado}>
+                <Text style={styles.galleryLink}>Recomeçar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={continuar} disabled={ocupado} style={styles.continuarBtn}>
+                <Text style={styles.permissionButtonText}>Continuar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         )}
       </View>
     </SafeAreaView>
@@ -208,6 +247,29 @@ const styles = StyleSheet.create({
     backgroundColor: colors.buttonBg,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  partesBox: {
+    marginTop: spacing.md,
+    marginHorizontal: spacing.lg,
+    padding: spacing.md,
+    borderRadius: 12,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    alignSelf: 'stretch',
+  },
+  partesTitulo: { color: colors.white, ...typography.label, textAlign: 'center' },
+  parteThumb: { width: 140, height: 50, borderRadius: 6, backgroundColor: '#333' },
+  partesDica: { color: colors.inputBg, fontSize: 13, textAlign: 'center', marginTop: spacing.xs },
+  partesBotoes: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: spacing.md,
+  },
+  continuarBtn: {
+    backgroundColor: colors.buttonBg,
+    borderRadius: 30,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.xl,
   },
   readingText: { color: colors.inputBg, ...typography.body, marginTop: spacing.md },
   galleryLink: { color: colors.inputBg, textDecorationLine: 'underline', ...typography.body },

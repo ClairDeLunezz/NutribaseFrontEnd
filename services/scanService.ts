@@ -9,6 +9,7 @@ export interface ScanRegistro {
   detalhes?: {
     termos_encontrados?: string[];
     advertencias?: string[];
+    texto_analisado?: string;
     [chave: string]: unknown;
   } | null;
   criado_em: string | null;

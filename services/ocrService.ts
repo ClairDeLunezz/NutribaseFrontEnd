@@ -21,7 +21,11 @@ export class OcrError extends Error {
 
 const MIN_TEXT_LENGTH = 15;
 
-export async function extrairTextoDoRotulo(imageUri: string): Promise<string> {
+/**
+ * `minimo` permite aceitar textos curtos nas fotos extras (ex.: a frente da
+ * embalagem, que só traz "ZERO LACTOSE"); a primeira foto continua exigindo 15.
+ */
+export async function extrairTextoDoRotulo(imageUri: string, minimo: number = MIN_TEXT_LENGTH): Promise<string> {
   if (!TextRecognition) {
     throw new OcrError(
       'O leitor de rótulos não está disponível neste app. Use o app de desenvolvimento do Nutribase (não o Expo Go).',
@@ -36,7 +40,7 @@ export async function extrairTextoDoRotulo(imageUri: string): Promise<string> {
     throw new OcrError('Não foi possível ler a imagem. Tente tirar a foto novamente.');
   }
 
-  if (texto.length < MIN_TEXT_LENGTH) {
+  if (texto.length < minimo) {
     throw new OcrError(
       'Não conseguimos ler o texto do rótulo. Tente de novo com mais luz, sem tremer, e enquadrando a lista de ingredientes.',
     );

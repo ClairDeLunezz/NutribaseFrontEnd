@@ -15,7 +15,7 @@ import { useToast } from '../context/ToastContext';
 
 type Decisao = 'adicionar' | 'ver' | 'cancelar';
 
-
+/** Pergunta ao usuário o que fazer quando já há um produto parecido no histórico. */
 function perguntarDuplicado(novo: string, existente: ScanRegistro): Promise<Decisao> {
   const { titulo } = infoResultado(normalizarResultado(existente.resultado));
   const quando = formatarData(existente.criado_em);
@@ -51,6 +51,7 @@ export default function NomeProdutoScreen({ navigate, photoUri, ocrText }: Scree
 
     setAnalisando(true);
     try {
+
       let similar: ScanRegistro | undefined;
       try {
         similar = acharSimilares(nome.trim(), await buscarHistorico(), 1)[0];
