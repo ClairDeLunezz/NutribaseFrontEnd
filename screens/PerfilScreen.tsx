@@ -107,6 +107,13 @@ export default function PerfilScreen({ navigate }: ScreenProps) {
           style={{ marginTop: spacing.md }}
         />
         <PrimaryButton
+          label="Política de Privacidade"
+          onPress={() => navigate('Politica', { origem: 'Perfil' })}
+          color={colors.inputBg}
+          textColor={colors.textDark}
+          style={{ marginTop: spacing.md }}
+        />
+        <PrimaryButton
           label="Excluir Conta"
           onPress={() => setModalVisivel(true)}
           color={colors.dangerRed}

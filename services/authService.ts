@@ -23,15 +23,15 @@ interface MensagemResponse {
   mensagem: string;
 }
 
-// RF01 - Cadastro
-export async function registrar(nome: string, email: string, senha: string, confirmarSenha: string) {
+
+export async function registrar(nome: string, email: string, senha: string, confirmarSenha: string, aceitePolitica: boolean) {
   return apiRequest<RegisterResponse>('/auth/register', {
     method: 'POST',
-    body: { nome, email, senha, confirmar_senha: confirmarSenha },
+    body: { nome, email, senha, confirmar_senha: confirmarSenha, aceite_politica: aceitePolitica },
   });
 }
 
-// RF02 - Login. Já salva o token no SecureStore em caso de sucesso.
+
 export async function login(email: string, senha: string): Promise<Usuario> {
   const resposta = await apiRequest<LoginResponse>('/auth/login', {
     method: 'POST',
@@ -49,7 +49,6 @@ export async function solicitarRecuperacaoSenha(email: string) {
   });
 }
 
-// RF03 (parte 2) - Confirma o código e define a nova senha
 export async function redefinirSenha(email: string, codigo: string, novaSenha: string) {
   return apiRequest<MensagemResponse>('/auth/reset-password', {
     method: 'POST',
@@ -57,13 +56,12 @@ export async function redefinirSenha(email: string, codigo: string, novaSenha: s
   });
 }
 
-// Logoff - invalida o token no back-end e limpa localmente
+
 export async function logout(): Promise<void> {
   try {
     await apiRequest<MensagemResponse>('/auth/logout', { method: 'POST', auth: true });
   } finally {
-    // Mesmo se a chamada falhar (ex: sem internet), remove o token local
-    // para não deixar o app "preso" numa sessão que o usuário não consegue mais usar.
+
     await clearToken();
   }
 }

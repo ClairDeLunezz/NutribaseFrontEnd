@@ -10,7 +10,8 @@ export type ScreenName =
   | 'ResultadoPrejudicial'
   | 'Perfil'
   | 'EditarPerfil'
-  | 'Disclaimer';
+  | 'Disclaimer'
+  | 'Politica';
 
 export interface NavigateParams {
   photoUri?: string;
@@ -18,6 +19,8 @@ export interface NavigateParams {
   ocrText?: string;
   termosEncontrados?: string[];
   advertencias?: string[];
+  /** Tela para a qual a Política de Privacidade volta (Cadastro ou Perfil). */
+  origem?: ScreenName;
 }
 
 export type NavigateFn = (screen: ScreenName, params?: NavigateParams) => void;
@@ -29,4 +32,6 @@ export interface ScreenProps {
   ocrText?: string;
   termosEncontrados?: string[];
   advertencias?: string[];
+  /** Tela para a qual a Política de Privacidade volta (Cadastro ou Perfil). */
+  origem?: ScreenName;
 }

@@ -12,6 +12,7 @@ import EditarPerfilScreen from './screens/EditarPerfilScreen';
 import { ToastProvider } from './context/ToastContext';
 import { ScreenName, NavigateParams } from './types';
 import DisclaimerScreen from './screens/DisclaimerScreen';
+import PoliticaPrivacidadeScreen from './screens/PoliticaPrivacidadeScreen';
 
 export default function App() {
   const [screen, setScreen] = useState<ScreenName>('Login');
@@ -20,6 +21,7 @@ export default function App() {
   const [ocrText, setOcrText] = useState<string | undefined>(undefined);
   const [termosEncontrados, setTermosEncontrados] = useState<string[] | undefined>(undefined);
   const [advertencias, setAdvertencias] = useState<string[] | undefined>(undefined);
+  const [origem, setOrigem] = useState<ScreenName | undefined>(undefined);
 
   const navigate = (next: ScreenName, params?: NavigateParams) => {
    if (params && 'photoUri' in params) setPhotoUri(params.photoUri);
@@ -27,6 +29,7 @@ export default function App() {
     if (params?.ocrText !== undefined) setOcrText(params.ocrText);
     if (params?.termosEncontrados !== undefined) setTermosEncontrados(params.termosEncontrados);
     if (params?.advertencias !== undefined) setAdvertencias(params.advertencias);
+    if (params?.origem !== undefined) setOrigem(params.origem);
     setScreen(next);
   };
 
@@ -70,6 +73,8 @@ export default function App() {
         return <PerfilScreen navigate={navigate} />;
       case 'EditarPerfil':
         return <EditarPerfilScreen navigate={navigate} />;
+      case 'Politica':
+        return <PoliticaPrivacidadeScreen navigate={navigate} origem={origem} />;
       default:
         return <LoginScreen navigate={navigate} />;
          case 'Disclaimer':
