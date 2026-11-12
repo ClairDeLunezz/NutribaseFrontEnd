@@ -239,7 +239,7 @@ O Nutribase é um apoio à leitura de rótulos e **não substitui a orientação
 
 ## Autores
 
-- Artur Cruz (front end)
-- Pietro (back end)
+- Artur Cruz 
+- Pietro 
 
 Orientador: Prof. Fabrício Tonetto Londero, Fatec Itu, 2026.
